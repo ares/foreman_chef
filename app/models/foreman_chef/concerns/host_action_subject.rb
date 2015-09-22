@@ -14,6 +14,13 @@ module ForemanChef
         "host"
       end
 
+      # TODO
+      def chef_environment_id
+        0
+      end
+      def chef_environment_id=(*args)
+      end
+
     end
   end
 end

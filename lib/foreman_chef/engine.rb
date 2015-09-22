@@ -12,6 +12,8 @@ module ForemanChef
       end
     end
 
+    config.autoload_paths += Dir["#{config.root}/app/helpers/concerns"]
+
     initializer 'foreman_chef.load_default_settings', :before => :load_config_initializers do
       require_dependency File.expand_path('../../../app/models/setting/foreman_chef.rb', __FILE__) if (Setting.table_exists? rescue(false))
     end
@@ -30,6 +32,15 @@ module ForemanChef
       Foreman::Plugin.register :foreman_chef do
         requires_foreman '>= 1.11'
         allowed_template_helpers :chef_bootstrap
+
+        permission :import_chef_environments, { :environments => [:import_environments] }, :resource_type => 'ChefEnvironment'
+
+        divider :top_menu, :caption => N_('Chef'), :parent => :configure_menu, :after => :common_parameters
+        menu :top_menu, :chef_environments,
+             url_hash: { controller: 'foreman_chef/environments', action: :index },
+             caption: N_('Environments'),
+             parent: :configure_menu,
+             after: :common_parameters
       end
     end
 
@@ -57,6 +68,7 @@ module ForemanChef
       (TemplatesController.descendants + [TemplatesController]).each do |klass|
         klass.send(:include, ForemanChef::Concerns::Renderer)
       end
+      ::PuppetclassesAndEnvironmentsHelper.send(:include, ForemanChef::EnvironmentsImport)
     end
 
     config.after_initialize do
