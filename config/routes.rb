@@ -1,10 +1,12 @@
 Rails.application.routes.draw do
 
   namespace :foreman_chef do
-    resources :environments, :only => [:index] do
+    resources :environments do
       collection do
-        get :import_environments
-        post :obsolete_and_new
+        get :auto_complete_search
+        get :import
+        post :synchronize
+        get :environments_for_chef_proxy
       end
     end
   end

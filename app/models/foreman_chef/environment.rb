@@ -1,17 +1,19 @@
 module ForemanChef
-  class ChefEnvironment < ActiveRecord::Base
+  class Environment < ActiveRecord::Base
     include Authorizable
     extend FriendlyId
     friendly_id :name
 
     has_many :hosts, :class_name => '::Host::Managed'
     has_many :hostgroups, :class_name => '::Hostgroup'
+    belongs_to :chef_proxy, :class_name => '::SmartProxy'
 
     validates :name, :uniqueness => true, :presence => true, :format => { :with => /\A[\w\d\.]+\z/, :message => N_('is alphanumeric and cannot contain spaces') }
 
     scoped_search :on => :name, :complete_value => true
     scoped_search :in => :hostgroups, :on => :name, :complete_value => true, :rename => :hostgroup
     scoped_search :in => :hosts, :on => :name, :complete_value => true, :rename => :host
+    scoped_search :in => :chef_proxy, :on => :name, :complete_value => true, :rename => 'chef_proxy.name'
 
 
     def self.humanize_class_name(_name = nil)

@@ -1,5 +1,6 @@
 <% title _("Changed environments") %>
-<%= form_tag send("obsolete_and_new_foreman_chef_environments_path") do %>
+<%= form_tag synchronize_foreman_chef_environments_path do %>
+  <%= hidden_field_tag :proxy, params[:proxy] %>
   <h4><%= _("Select the changes you want to realize in Foreman") %></h4>
   <h6>
     <%= _("Toggle") %>:
@@ -51,7 +52,7 @@
     </tbody>
   </table>
   <div>
-    <%= link_to _("Cancel"), send("environments_path"), :class => "btn btn-default" %>
+    <%= link_to _("Cancel"), send("foreman_chef_environments_path"), :class => "btn btn-default" %>
     <%= submit_tag _("Update"), :class => "btn btn-primary" %>
   </div>
 <% end %>

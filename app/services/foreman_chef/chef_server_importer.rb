@@ -1,6 +1,7 @@
 module ForemanChef
   class ChefServerImporter
     def initialize(args = {})
+      @chef_proxy = args[:chef_proxy]
       @environment = args[:env]
       @proxy = args[:proxy]
       @url_arg = args[:url]
@@ -46,16 +47,16 @@ module ForemanChef
     def obsolete_and_new(changes = { })
       return if changes.empty?
       if changes['new'].present?
-        changes['new'].each { |name, _| ChefEnvironment.create(:name => name) }
+        changes['new'].each { |name, _| Environment.create(:name => name, :chef_proxy_id => @chef_proxy.id) }
       end
       if changes['obsolete'].present?
-        changes['obsolete'].each { |name, _| ChefEnvironment.find(name).destroy }
+        changes['obsolete'].each { |name, _| Environment.where(:chef_proxy_id => @chef_proxy.id).find(name).destroy }
       end
       []
     end
 
     def db_environments
-      @db_environments ||= (ChefEnvironment.pluck('environments.name') - ignored_environments)
+      @db_environments ||= (Environment.where(:chef_proxy_id => @chef_proxy.id).pluck('name') - ignored_environments)
     end
 
     def actual_environments
@@ -95,10 +96,5 @@ module ForemanChef
     def logger
       @logger ||= Foreman::Logging.logger('foreman_chef')
     end
-
-    def find_or_create_env(env)
-      ChefEnvironment.where(:name => env).first || ChefEnvironment.create!(:name => env)
-    end
-
   end
 end
