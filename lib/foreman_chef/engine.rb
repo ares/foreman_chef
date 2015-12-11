@@ -84,6 +84,7 @@ module ForemanChef
       ::Hostgroup.send :include, ForemanChef::Concerns::HostgroupExtensions
       ::SmartProxy.send :include, ForemanChef::Concerns::SmartProxyExtensions
       ::Host::Base.send :include, ForemanChef::Concerns::HostActionSubject
+      ::Host::Managed.send :include, ForemanChef::Concerns::HostBuild
       ::HostsController.send :include, ForemanChef::Concerns::HostsControllerRescuer
       # Renderer Concern needs to be injected to controllers, ForemanRenderer was already included
       (TemplatesController.descendants + [TemplatesController]).each do |klass|
