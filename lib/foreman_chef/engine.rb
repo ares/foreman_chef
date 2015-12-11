@@ -50,6 +50,7 @@ module ForemanChef
       ::FactImporter.register_fact_importer(:foreman_chef, ForemanChef::FactImporter)
       ::FactParser.register_fact_parser(:foreman_chef, ForemanChef::FactParser)
       ::Host::Base.send :include, ForemanChef::Concerns::HostActionSubject
+      ::Host::Managed.send :include, ForemanChef::Concerns::HostBuild
       ::HostsController.send :include, ForemanChef::Concerns::HostsControllerRescuer
     end
 
