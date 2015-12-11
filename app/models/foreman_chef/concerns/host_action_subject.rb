@@ -13,14 +13,6 @@ module ForemanChef
       def action_input_key
         "host"
       end
-
-      # TODO
-      def chef_environment_id
-        0
-      end
-      def chef_environment_id=(*args)
-      end
-
     end
   end
 end
