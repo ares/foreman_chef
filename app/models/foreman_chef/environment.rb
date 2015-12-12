@@ -23,5 +23,9 @@ module ForemanChef
     def self.permission_name(action)
       "#{action}_chef_environments"
     end
+
+    class Jail < Safemode::Jail
+      allow :name
+    end
   end
 end

@@ -5,6 +5,13 @@ module ForemanChef
       include ForemanTasks::Concerns::ActionSubject
       include ForemanTasks::Concerns::ActionTriggering
 
+      # TODO nefunguje kvuli transakcim, muselo by se udelat jako warp controller akce
+      # nebo musi pockat na novou orchestraci hosta?
+      def create_action
+        sync_action!
+        ::Actions::ForemanChef::Host::Create
+      end
+
       def destroy_action
         sync_action!
         ::Actions::ForemanChef::Host::Destroy
@@ -18,5 +25,5 @@ module ForemanChef
 end
 
 class ::Host::Managed::Jail < Safemode::Jail
-  allow :chef_proxy
+  allow :chef_proxy, :chef_environment
 end
