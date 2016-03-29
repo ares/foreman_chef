@@ -1,0 +1,61 @@
+<% javascript('jsoneditor') %>
+
+<div class="tab-pane" id="chef">
+
+  <div id="runlist-editor">
+
+  </div>
+
+  <script>
+    $(function () {
+      JSONEditor.defaults.themes.foreman = JSONEditor.defaults.themes.bootstrap2.extend({
+        getIndentedPanel: function() {
+          var el = document.createElement('div');
+          return el;
+        }
+      });
+      JSONEditor.defaults.options.theme = 'foreman';
+      JSONEditor.defaults.options.iconlib = 'fontawesome4';
+
+
+      var runlist_schema = {
+        "type": "array",
+        "title": "Node run list",
+        "format": "table",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "role",
+                "recipe"
+              ],
+              "default": "role",
+              "options": {
+                // Override default options
+                select2_options: {
+                  width: '80px'
+                }
+              }
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "default": <%= f.object.run_list.to_form_json.html_safe %>
+      };
+
+      $("#runlist-editor").jsoneditor({
+        schema: runlist_schema,
+        disable_properties: true,
+        disable_collapse: true,
+        no_additional_properties: true,
+        form_name_root: 'host[run_list]'
+      });
+    })
+  </script>
+
+  <% #::SmartProxy.find_by_id(1).show_node('tony')['run_list'].class %>
+</div>
