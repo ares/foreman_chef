@@ -47,8 +47,7 @@ module ForemanChef
 
     initializer 'foreman_chef.register_plugin', :after => :finisher_hook do |app|
       Foreman::Plugin.register :foreman_chef do
-        requires_foreman '>= 1.11'
-        allowed_template_helpers :chef_bootstrap
+        requires_foreman '>= 1.12'
 
         permission :import_chef_environments, { :environments => [:import, :synchronize] }, :resource_type => 'ForemanChef::Environment'
         permission :view_chef_environments, { :environments => [:index, :environments_for_chef_proxy] }, :resource_type => 'ForemanChef::Environment'
@@ -61,12 +60,13 @@ module ForemanChef
              caption: N_('Environments'),
              parent: :configure_menu,
              last: true
+        allowed_template_helpers :binding
+        extend_template_helpers(ForemanChef::Concerns::Renderer)
       end
     end
 
     initializer 'foreman_chef.chef_proxy_form' do |app|
       ActionView::Base.send :include, ChefProxyForm
-      ActionView::Base.send :include, ForemanChef::Concerns::Renderer
     end
 
     initializer 'foreman_chef.dynflow_world', :before => 'foreman_tasks.initialize_dynflow' do |app|
@@ -86,14 +86,6 @@ module ForemanChef
       ::SmartProxy.send :include, ForemanChef::Concerns::SmartProxyExtensions
       ::Host::Base.send :include, ForemanChef::Concerns::HostActionSubject
       ::HostsController.send :include, ForemanChef::Concerns::HostsControllerRescuer
-      # Renderer Concern needs to be injected to controllers, ForemanRenderer was already included
-      (TemplatesController.descendants + [TemplatesController]).each do |klass|
-        klass.send(:include, ForemanChef::Concerns::Renderer)
-      end
-    end
-
-    config.after_initialize do
-      ::Foreman::Renderer.send :include, ForemanChef::Concerns::Renderer
     end
   end
 
