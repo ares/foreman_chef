@@ -5,18 +5,21 @@ module Actions
 
         def plan(host)
           action_subject(host)
-          client_exists_in_chef = host.chef_proxy.show_client(host.name)
 
-          sequence do
-            if client_exists_in_chef
-              plan_action Actions::ForemanChef::Client::Destroy, host.name, host.chef_proxy
+          if host.chef_proxy
+            client_exists_in_chef = host.chef_proxy.show_client(host.name)
+
+            sequence do
+              if client_exists_in_chef
+                plan_action Actions::ForemanChef::Client::Destroy, host.name, host.chef_proxy
+              end
+
+              unless ::Setting::ForemanChef.validate_bootstrap_method
+                client_creation = plan_action Actions::ForemanChef::Client::Create, host.name, host.chef_proxy
+              end
+
+              plan_self(:create_action_output => client_creation.output)
             end
-
-            unless ::Setting::ForemanChef.validate_bootstrap_method
-              client_creation = plan_action Actions::ForemanChef::Client::Create, host.name, host.chef_proxy
-            end
-
-            plan_self(:create_action_output => client_creation.output)
           end
         rescue => e
           Rails.logger.debug "Unable to communicate with Chef proxy, #{e.message}"
@@ -29,7 +32,9 @@ module Actions
         # end
 
         def finalize
-          ::Host.find(self.input[:host][:id]).update_attribute(:chef_private_key, input[:create_action_output][:private_key])
+          if input[:create_action_output][:private_key].present?
+            ::Host.find(self.input[:host][:id]).update_attribute(:chef_private_key, input[:create_action_output][:private_key])
+          end
         end
 
         def humanized_name
